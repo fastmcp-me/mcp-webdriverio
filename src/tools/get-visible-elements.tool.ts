@@ -41,9 +41,11 @@ export const getVisibleElementsToolDefinition: ToolDefinition = {
     limit: z
       .number()
       .optional()
-      .describe(
-        'Maximum number of elements to return. Default: 0 (unlimited). Set a limit for pages with many elements.',
-      ),
+      .describe('Maximum number of elements to return. Default: 0 (unlimited).'),
+    offset: z
+      .number()
+      .optional()
+      .describe('Number of elements to skip (for pagination). Default: 0.'),
   },
 };
 
@@ -57,6 +59,7 @@ export const getVisibleElementsTool: ToolCallback = async (args: {
   includeBounds?: boolean;
   elementType?: 'interactable' | 'visual' | 'all';
   limit?: number;
+  offset?: number;
 }) => {
   try {
     const browser = getBrowser();
@@ -66,6 +69,7 @@ export const getVisibleElementsTool: ToolCallback = async (args: {
       includeBounds = false,
       elementType = 'interactable',
       limit = 0,
+      offset = 0,
     } = args || {};
 
     let elements: { isInViewport?: boolean }[];
@@ -82,12 +86,25 @@ export const getVisibleElementsTool: ToolCallback = async (args: {
       elements = elements.filter((el) => el.isInViewport !== false);
     }
 
-    if (limit > 0 && elements.length > limit) {
+    const total = elements.length;
+
+    // Apply pagination
+    if (offset > 0) {
+      elements = elements.slice(offset);
+    }
+    if (limit > 0) {
       elements = elements.slice(0, limit);
     }
 
+    const result = {
+      total,
+      showing: elements.length,
+      hasMore: offset + elements.length < total,
+      elements,
+    };
+
     return {
-      content: [{ type: 'text', text: encode(elements) }],
+      content: [{ type: 'text', text: encode(result) }],
     };
   } catch (e) {
     return {
