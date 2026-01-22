@@ -1,6 +1,6 @@
 import { getBrowser } from './browser.tool';
-import getInteractableElements from '../scripts/get-interactable-elements';
-import { getMobileVisibleElements } from '../utils/mobile-elements';
+import getInteractableElements from '../scripts/get-interactable-browser-elements';
+import { getMobileVisibleElements } from '../scripts/get-visible-mobile-elements';
 import type { ToolCallback } from '@modelcontextprotocol/sdk/server/mcp';
 import type { ToolDefinition } from '../types/tool';
 import { encode } from '@toon-format/toon';
