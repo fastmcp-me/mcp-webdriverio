@@ -32,7 +32,7 @@ export const startAppToolDefinition: ToolDefinition = {
 };
 
 // Access shared state from browser.tool.ts
-const getState = () => {
+export const getState = () => {
   const sharedState = (getBrowser as any).__state;
   if (!sharedState) {
     throw new Error('Browser state not initialized');

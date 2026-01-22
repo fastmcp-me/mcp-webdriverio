@@ -114,8 +114,6 @@ All tools follow a consistent pattern:
 - iOS Predicate String: `-ios predicate string:label == "Login" AND visible == 1`
 - XPath: `//android.widget.Button[@text="Login"]` or `//XCUIElementTypeButton[@label="Login"]`
 
-See `src/utils/mobile-selectors.ts` for helper functions to build mobile selectors programmatically.
-
 ## Mobile App Automation
 
 ### Prerequisites
@@ -338,13 +336,10 @@ To switch from browser to app (or vice versa), close the current session first, 
 **Touch Gestures:**
 - `tap_element`: Tap element by selector or coordinates
 - `swipe`: Swipe in a direction (up/down/left/right) with configurable duration
-- `long_press`: Long press element or coordinates
 - `drag_and_drop`: Drag from one location to another
 
 **App Lifecycle:**
 - `get_app_state`: Check app state (not installed, not running, background, foreground)
-- `activate_app`: Bring app to foreground
-- `terminate_app`: Kill running app
 
 **Context Switching (Hybrid Apps):**
 - `get_contexts`: List available contexts (NATIVE_APP, WEBVIEW_*)
@@ -352,51 +347,21 @@ To switch from browser to app (or vice versa), close the current session first, 
 - `switch_context`: Switch between native and webview contexts
 
 **Device Interaction:**
-- `get_device_info`: Get platform, version, screen size
 - `rotate_device`: Set orientation (PORTRAIT/LANDSCAPE)
-- `get_orientation`: Get current orientation
-- `lock_device` / `unlock_device`: Control screen lock
-- `is_device_locked`: Check lock status
-- `shake_device`: Simulate shake gesture (iOS only)
-- `send_keys`: Send keyboard input (Android only)
-- `press_key_code`: Press Android key code (e.g., BACK=4, HOME=3)
-- `hide_keyboard` / `is_keyboard_shown`: Keyboard control
-- `open_notifications`: Open notification panel (Android only)
+- `hide_keyboard`: Hide on-screen keyboard
 - `get_geolocation` / `set_geolocation`: GPS control
 
-### Mobile Selector Utilities
+**Script Execution (Advanced):**
 
-The `src/utils/mobile-selectors.ts` module provides helper functions for building mobile selectors:
-
-**Accessibility ID (Cross-platform):**
-```typescript
-import { accessibilityId } from '../utils/mobile-selectors';
-const selector = accessibilityId('loginButton'); // '~loginButton'
-```
-
-**Android UiAutomator:**
-```typescript
-import { androidSelectors } from '../utils/mobile-selectors';
-androidSelectors.text('Login')                    // Text match
-androidSelectors.textContains('Log')              // Partial text
-androidSelectors.resourceId('com.app:id/button')  // Resource ID
-androidSelectors.className('android.widget.Button')
-androidSelectors.description('Login button')
-```
-
-**iOS Predicates and Class Chains:**
-```typescript
-import { iOSSelectors } from '../utils/mobile-selectors';
-iOSSelectors.label('Login')                       // Label match
-iOSSelectors.labelContains('Log')                 // Partial label
-iOSSelectors.name('loginButton')                  // Name attribute
-iOSSelectors.visible()                            // Visible only
-iOSSelectors.type('Button')                       // Element type
-iOSSelectors.and(                                 // Combine conditions
-  iOSSelectors.label('Login'),
-  iOSSelectors.visible()
-)
-```
+- `execute_script`: Run JavaScript in browser or Appium mobile commands
+    - Browser JS: `execute_script({ script: "return document.title" })`
+    - Android key press: `execute_script({ script: "mobile: pressKey", args: [{ keycode: 4 }] })` (BACK=4, HOME=3)
+    - Activate app: `execute_script({ script: "mobile: activateApp", args: [{ appId: "com.example" }] })`
+    - Terminate app: `execute_script({ script: "mobile: terminateApp", args: [{ appId: "com.example" }] })`
+    - Deep link:
+      `execute_script({ script: "mobile: deepLink", args: [{ url: "myapp://screen", package: "com.example" }] })`
+    - Shell command (Android):
+      `execute_script({ script: "mobile: shell", args: [{ command: "dumpsys", args: ["battery"] }] })`
 
 ### Real-World Examples
 
@@ -591,9 +556,6 @@ swipe({ direction: 'up', duration: 500 })
 
 // Set location
 set_geolocation({ latitude: 37.7749, longitude: -122.4194 })
-
-// Background app
-background_app({ seconds: 5 })  // Background for 5 seconds, then resume
 ```
 
 ### Key Implementation Details
@@ -628,7 +590,7 @@ background_app({ seconds: 5 })  // Background for 5 seconds, then resume
 
 8. **Error Handling**: Tools catch errors and return them as text content rather than throwing, ensuring the MCP protocol remains stable.
 
-9. **Cross-Platform Compatibility**: Many existing tools (click_element, set_value, find_element, take_screenshot, etc.) work seamlessly on both web browsers and mobile apps. Mobile-specific tools (gestures, app lifecycle, device interaction) only work with app sessions.
+9. **Cross-Platform Compatibility**: Many existing tools (click_element, set_value, take_screenshot, etc.) work seamlessly on both web browsers and mobile apps. Mobile-specific tools (gestures, app lifecycle, device interaction) only work with app sessions.
 
 ## Adding New Tools
 
