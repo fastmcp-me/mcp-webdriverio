@@ -134,6 +134,9 @@ registerTool(hideKeyboardToolDefinition, hideKeyboardTool);
 registerTool(getGeolocationToolDefinition, getGeolocationTool);
 registerTool(setGeolocationToolDefinition, setGeolocationTool);
 
+// Script Execution (Browser JS / Appium Mobile Commands)
+registerTool(executeScriptToolDefinition, executeScriptTool);
+
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
