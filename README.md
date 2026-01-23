@@ -110,20 +110,15 @@ appium
 | `navigate`             | Navigate to a URL                                                                                                                                                                                      |
 | `get_visible_elements` | Get visible, interactable elements on the page. Supports `inViewportOnly` (default: true) to filter viewport elements, and `includeContainers` (default: false) to include layout containers on mobile |
 | `get_accessibility`    | Get accessibility tree with semantic element information                                                                                                                                               |
-| `scroll_down`          | Scroll down by specified pixels                                                                                                                                                                        |
-| `scroll_up`            | Scroll up by specified pixels                                                                                                                                                                          |
+| `scroll`               | Scroll in a direction (up/down) by specified pixels                                                                                                                                                    |
 | `take_screenshot`      | Capture a screenshot                                                                                                                                                                                   |
 
 ### Element Interaction (Web & Mobile)
 
-| Tool               | Description                                                     |
-|--------------------|-----------------------------------------------------------------|
-| `find_element`     | Find an element using CSS selectors, XPath, or mobile selectors |
-| `click_element`    | Click an element                                                |
-| `click_via_text`   | Click an element by text content                                |
-| `set_value`        | Type text into input fields                                     |
-| `get_element_text` | Get text content of an element                                  |
-| `is_displayed`     | Check if an element is displayed                                |
+| Tool            | Description                 |
+|-----------------|-----------------------------|
+| `click_element` | Click an element            |
+| `set_value`     | Type text into input fields |
 
 ### Cookie Management (Web)
 
@@ -139,7 +134,6 @@ appium
 |-----------------|-------------------------------------------|
 | `tap_element`   | Tap an element by selector or coordinates |
 | `swipe`         | Swipe in a direction (up/down/left/right) |
-| `long_press`    | Long press an element or coordinates      |
 | `drag_and_drop` | Drag from one location to another         |
 
 ### App Lifecycle (iOS/Android)
@@ -147,8 +141,6 @@ appium
 | Tool            | Description                                                  |
 |-----------------|--------------------------------------------------------------|
 | `get_app_state` | Check app state (installed, running, background, foreground) |
-| `activate_app`  | Bring app to foreground                                      |
-| `terminate_app` | Terminate a running app                                      |
 
 ### Context Switching (Hybrid Apps)
 
@@ -160,19 +152,11 @@ appium
 
 ### Device Control (iOS/Android)
 
-| Tool                                  | Description                                   |
-|---------------------------------------|-----------------------------------------------|
-| `get_device_info`                     | Get device platform, version, screen size     |
-| `rotate_device`                       | Rotate to portrait or landscape orientation   |
-| `get_orientation`                     | Get current device orientation                |
-| `lock_device` / `unlock_device`       | Lock or unlock device screen                  |
-| `is_device_locked`                    | Check if device is locked                     |
-| `shake_device`                        | Shake the device (iOS only)                   |
-| `send_keys`                           | Send keyboard input (Android only)            |
-| `press_key_code`                      | Press Android key code (BACK=4, HOME=3, etc.) |
-| `hide_keyboard` / `is_keyboard_shown` | Control on-screen keyboard                    |
-| `open_notifications`                  | Open notifications panel (Android only)       |
-| `get_geolocation` / `set_geolocation` | Get or set device GPS location                |
+| Tool                                  | Description                     |
+|---------------------------------------|---------------------------------|
+| `rotate_device`                       | Rotate to portrait or landscape |
+| `hide_keyboard`                       | Hide on-screen keyboard         |
+| `get_geolocation` / `set_geolocation` | Get or set device GPS location  |
 
 ## Usage Examples
 
