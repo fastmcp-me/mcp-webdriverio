@@ -9,8 +9,9 @@ export const startBrowserToolDefinition: ToolDefinition = {
   description: 'starts a browser session and sets it to the current state',
   inputSchema: {
     headless: z.boolean().optional(),
-    windowWidth: z.number().min(400).max(3840).optional(),
-    windowHeight: z.number().min(400).max(2160).optional(),
+    windowWidth: z.number().min(400).max(3840).optional().default(1920),
+    windowHeight: z.number().min(400).max(2160).optional().default(1080),
+    navigationUrl: z.string().optional().describe('URL to navigate to after starting the browser'),
   },
 };
 
@@ -42,10 +43,16 @@ export const getBrowser = () => {
 // Export state for app-session.tool.ts to access
 (getBrowser as any).__state = state;
 
-export const startBrowserTool: ToolCallback = async ({ headless = false, windowWidth = 1280, windowHeight = 1080}: {
+export const startBrowserTool: ToolCallback = async ({
+  headless = false,
+  windowWidth = 1920,
+  windowHeight = 1080,
+  navigationUrl
+}: {
   headless?: boolean;
   windowWidth?: number;
   windowHeight?: number;
+  navigationUrl?: string;
 }): Promise<CallToolResult> => {
   const chromeArgs = [
     `--window-size=${windowWidth},${windowHeight}`,
@@ -85,11 +92,17 @@ export const startBrowserTool: ToolCallback = async ({ headless = false, windowW
     isAttached: false,
   });
 
+  // Navigate to URL if provided
+  if (navigationUrl) {
+    await browser.url(navigationUrl);
+  }
+
   const modeText = headless ? 'headless' : 'headed';
+  const urlText = navigationUrl ? ` and navigated to ${navigationUrl}` : '';
   return {
     content: [{
       type: 'text',
-      text: `Browser started in ${modeText} mode with sessionId: ${sessionId} (${windowWidth}x${windowHeight})`,
+      text: `Browser started in ${modeText} mode with sessionId: ${sessionId} (${windowWidth}x${windowHeight})${urlText}`,
     }],
   };
 };
