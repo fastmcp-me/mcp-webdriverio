@@ -165,53 +165,24 @@ const elementsScript = (elementType: 'interactable' | 'visual' | 'all' = 'intera
           rect.right <= (window.innerWidth || document.documentElement.clientWidth)
         );
 
-        // Build object with only defined values (no null clutter in TOON output)
+        // Build object with ALL fields for uniform schema (enables TOON tabular format)
+        // Empty string '' used for missing values, post-processed to bare commas
         const info: Record<string, unknown> = {
           tagName: el.tagName.toLowerCase(),
+          type: el.getAttribute('type') || '',
+          id: el.id || '',
+          className: (typeof el.className === 'string' ? el.className : '') || '',
+          textContent: el.textContent?.trim() || '',
+          value: inputEl.value || '',
+          placeholder: inputEl.placeholder || '',
+          href: el.getAttribute('href') || '',
+          ariaLabel: el.getAttribute('aria-label') || '',
+          role: el.getAttribute('role') || '',
+          src: el.getAttribute('src') || '',
+          alt: el.getAttribute('alt') || '',
           cssSelector: getCssSelector(el),
           isInViewport: isInViewport,
         };
-
-        // Only add properties that have actual values
-        const type = el.getAttribute('type');
-        if (type) info.type = type;
-
-        const id = el.id;
-        if (id) info.id = id;
-
-        const className = el.className;
-        if (className && typeof className === 'string') info.className = className;
-
-        const textContent = el.textContent?.trim();
-        if (textContent) info.textContent = textContent;
-
-        const value = inputEl.value;
-        if (value) info.value = value;
-
-        const placeholder = inputEl.placeholder;
-        if (placeholder) info.placeholder = placeholder;
-
-        const href = el.getAttribute('href');
-        if (href) info.href = href;
-
-        const ariaLabel = el.getAttribute('aria-label');
-        if (ariaLabel) info.ariaLabel = ariaLabel;
-
-        const role = el.getAttribute('role');
-        if (role) info.role = role;
-
-        // Visual element specific properties
-        const src = el.getAttribute('src');
-        if (src) info.src = src;
-
-        const alt = el.getAttribute('alt');
-        if (alt) info.alt = alt;
-
-        // Check for background-image (only if it's a visual element type query)
-        if (elementType === 'visual' || elementType === 'all') {
-          const bgImage = window.getComputedStyle(el).backgroundImage;
-          if (bgImage && bgImage !== 'none') info.backgroundImage = bgImage;
-        }
 
         return info;
       });

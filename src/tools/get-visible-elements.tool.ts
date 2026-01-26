@@ -5,7 +5,6 @@ import type { ToolCallback } from '@modelcontextprotocol/sdk/server/mcp';
 import type { ToolDefinition } from '../types/tool';
 import { encode } from '@toon-format/toon';
 import { z } from 'zod';
-import { stripUndefinedFromArray } from '../utils/strip-undefined';
 
 /**
  * Tool definition for get_visible_elements
@@ -78,8 +77,8 @@ export const getVisibleElementsTool: ToolCallback = async (args: {
       const platform = browser.isAndroid ? 'android' : 'ios';
       elements = await getMobileVisibleElements(browser, platform, { includeContainers, includeBounds });
     } else {
-      const raw = await browser.execute(getInteractableElements, elementType);
-      elements = stripUndefinedFromArray(raw);
+      // Keep uniform fields (no stripping) to enable CSV tabular format
+      elements = await browser.execute(getInteractableElements, elementType);
     }
 
     if (inViewportOnly) {
@@ -103,8 +102,10 @@ export const getVisibleElementsTool: ToolCallback = async (args: {
       elements,
     };
 
+    // TOON tabular format with post-processing: replace "" with bare commas for efficiency
+    const toon = encode(result).replace(/,""/g, ',').replace(/"",/g, ',');
     return {
-      content: [{ type: 'text', text: encode(result) }],
+      content: [{ type: 'text', text: toon }],
     };
   } catch (e) {
     return {

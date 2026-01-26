@@ -9,18 +9,18 @@ import { generateAllElementLocators, getDefaultFilters } from '../locators';
 
 /**
  * Element info returned by getMobileVisibleElements
- * Only includes fields that have actual values (no nulls/undefined)
+ * Uses uniform fields (all elements have same keys) to enable TOON tabular format
  */
 export interface MobileElementInfo {
   selector: string;
   tagName: string;
   isInViewport: boolean;
-  // Optional fields - only present when they have meaningful values
-  text?: string;
-  resourceId?: string;
-  accessibilityId?: string;
-  isEnabled?: boolean;
-  alternativeSelectors?: string[];
+  text: string;
+  resourceId: string;
+  accessibilityId: string;
+  isEnabled: boolean;
+  alternativeSelectors: string[];
+  // Only present when includeBounds=true
   bounds?: { x: number; y: number; width: number; height: number };
 }
 
@@ -76,44 +76,28 @@ function selectBestLocators(locators: Record<string, string>): string[] {
 
 /**
  * Convert ElementWithLocators to MobileElementInfo
- * Only includes fields with actual values (mirrors browser script behavior)
+ * Uses uniform fields (all elements have same keys) to enable CSV tabular format
  */
 function toMobileElementInfo(element: ElementWithLocators, includeBounds: boolean): MobileElementInfo {
   const selectedLocators = selectBestLocators(element.locators);
 
-  // Start with required fields
+  // Use contentDesc for accessibilityId on Android, or name on iOS
+  const accessId = element.accessibilityId || element.contentDesc;
+
+  // Build object with ALL fields for uniform schema (enables CSV tabular format)
+  // Empty string '' used for missing values to keep schema consistent
   const info: MobileElementInfo = {
     selector: selectedLocators[0] || '',
     tagName: element.tagName,
     isInViewport: element.isInViewport,
+    text: element.text || '',
+    resourceId: element.resourceId || '',
+    accessibilityId: accessId || '',
+    isEnabled: element.enabled !== false,
+    alternativeSelectors: selectedLocators.length > 1 ? selectedLocators.slice(1) : [],
   };
 
-  // Only add optional fields if they have meaningful values
-  if (element.text) {
-    info.text = element.text;
-  }
-
-  if (element.resourceId) {
-    info.resourceId = element.resourceId;
-  }
-
-  // Use contentDesc for accessibilityId on Android, or name on iOS
-  const accessId = element.accessibilityId || element.contentDesc;
-  if (accessId) {
-    info.accessibilityId = accessId;
-  }
-
-  // Only include isEnabled if it's false (true is the common case)
-  if (!element.enabled) {
-    info.isEnabled = false;
-  }
-
-  // Only add alternative selectors if we have more than one
-  if (selectedLocators.length > 1) {
-    info.alternativeSelectors = selectedLocators.slice(1);
-  }
-
-  // Only include bounds if explicitly requested
+  // Only include bounds if explicitly requested (adds 4 extra columns)
   if (includeBounds) {
     info.bounds = element.bounds;
   }

@@ -25,7 +25,7 @@ export const getAccessibilityToolDefinition: ToolDefinition = {
 
 /**
  * Flatten a hierarchical accessibility tree into a flat list
- * Only includes properties that have actual values (no null clutter)
+ * Uses uniform fields (all nodes have same keys) to enable tabular format
  * @param node - The accessibility node
  * @param result - Accumulator array
  */
@@ -34,34 +34,38 @@ function flattenAccessibilityTree(node: any, result: any[] = []): any[] {
 
   // Add current node (excluding root WebArea unless it has meaningful content)
   if (node.role !== 'WebArea' || node.name) {
-    const entry: Record<string, any> = {};
-
-    // Only add properties that have actual values
-    if (node.role) entry.role = node.role;
-    if (node.name) entry.name = node.name;
-    if (node.value !== undefined && node.value !== '') entry.value = node.value;
-    if (node.description) entry.description = node.description;
-    if (node.keyshortcuts) entry.keyshortcuts = node.keyshortcuts;
-    if (node.roledescription) entry.roledescription = node.roledescription;
-    if (node.valuetext) entry.valuetext = node.valuetext;
-    if (node.disabled) entry.disabled = node.disabled;
-    if (node.expanded !== undefined) entry.expanded = node.expanded;
-    if (node.focused) entry.focused = node.focused;
-    if (node.modal) entry.modal = node.modal;
-    if (node.multiline) entry.multiline = node.multiline;
-    if (node.multiselectable) entry.multiselectable = node.multiselectable;
-    if (node.readonly) entry.readonly = node.readonly;
-    if (node.required) entry.required = node.required;
-    if (node.selected) entry.selected = node.selected;
-    if (node.checked !== undefined) entry.checked = node.checked;
-    if (node.pressed !== undefined) entry.pressed = node.pressed;
-    if (node.level !== undefined) entry.level = node.level;
-    if (node.valuemin !== undefined) entry.valuemin = node.valuemin;
-    if (node.valuemax !== undefined) entry.valuemax = node.valuemax;
-    if (node.autocomplete) entry.autocomplete = node.autocomplete;
-    if (node.haspopup) entry.haspopup = node.haspopup;
-    if (node.invalid) entry.invalid = node.invalid;
-    if (node.orientation) entry.orientation = node.orientation;
+    // Build object with ALL fields for uniform schema (enables tabular format)
+    // Empty string '' used for missing values to keep schema consistent
+    const entry: Record<string, any> = {
+      // Primary identifiers (most useful)
+      role: node.role || '',
+      name: node.name || '',
+      value: node.value ?? '',
+      description: node.description || '',
+      // Boolean states (empty string = not applicable/false)
+      disabled: node.disabled ? 'true' : '',
+      focused: node.focused ? 'true' : '',
+      selected: node.selected ? 'true' : '',
+      checked: node.checked === true ? 'true' : node.checked === false ? 'false' : node.checked === 'mixed' ? 'mixed' : '',
+      expanded: node.expanded === true ? 'true' : node.expanded === false ? 'false' : '',
+      pressed: node.pressed === true ? 'true' : node.pressed === false ? 'false' : node.pressed === 'mixed' ? 'mixed' : '',
+      readonly: node.readonly ? 'true' : '',
+      required: node.required ? 'true' : '',
+      // Less common properties
+      level: node.level ?? '',
+      valuemin: node.valuemin ?? '',
+      valuemax: node.valuemax ?? '',
+      autocomplete: node.autocomplete || '',
+      haspopup: node.haspopup || '',
+      invalid: node.invalid ? 'true' : '',
+      modal: node.modal ? 'true' : '',
+      multiline: node.multiline ? 'true' : '',
+      multiselectable: node.multiselectable ? 'true' : '',
+      orientation: node.orientation || '',
+      keyshortcuts: node.keyshortcuts || '',
+      roledescription: node.roledescription || '',
+      valuetext: node.valuetext || '',
+    };
 
     result.push(entry);
   }
@@ -151,8 +155,13 @@ export const getAccessibilityTreeTool: ToolCallback = async (args: {
       nodes,
     };
 
+    // Post-process: replace "" with bare commas for efficiency
+    const toon = encode(result)
+      .replace(/,""/g, ',')
+      .replace(/"",/g, ',');
+
     return {
-      content: [{ type: 'text', text: encode(result) }],
+      content: [{ type: 'text', text: toon }],
     };
   } catch (e) {
     return {
