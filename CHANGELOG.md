@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.0](https://github.com/webdriverio/mcp/compare/v2.0.0...v2.1.0) (2026-01-27)
+
+### Performance
+
+* Use uniform field structures for TOON tabular format across tools and scripts ([1b70736](https://github.com/webdriverio/mcp/commit/1b70736305a00d62afd4547d81d3116144c8822e))
+
 ## [2.0.0](https://github.com/webdriverio/mcp/compare/v1.6.1...v2.0.0) (2026-01-23)
 
 ### ⚠ BREAKING CHANGES
